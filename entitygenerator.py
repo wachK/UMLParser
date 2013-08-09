@@ -90,7 +90,7 @@ class {meta.classDef.name}"""
         if meta.classDef.parent:
             out += ' extends ' + meta.classDef.parent
             
-        out += '{{'
+        out += ' {{'
 
         if not meta.classDef.parent:
             out += """
