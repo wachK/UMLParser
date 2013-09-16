@@ -67,8 +67,6 @@ class EntityGenerator(object):
 namespace {conf.namespace};
 
 /**
- * {meta.classDef.name}
- * 
  * @Entity"""
  
         if len(meta.discr):
@@ -97,7 +95,14 @@ class {meta.classDef.name}"""
      * @Id
      * @GeneratedValue(strategy="AUTO")
      */
-    private $id;"""
+    private $id;
+    /**
+     * @return integer
+     */
+    public function getId() {{
+        return $this->id;
+    }}
+    """
         
         out += ''.join([ """
     /**
@@ -105,7 +110,20 @@ class {meta.classDef.name}"""
      *
      * @Column(name="{attribute.name}", type="{attribute.typeName}")
      */
-    private ${attribute.name};""".format(attribute=n) for n in meta.classDef.attributes ])
+    private ${attribute.name};
+    /**
+     * @return {attribute.typeName}
+     */
+    public function get{capitalized}() {{{{
+        return $this->{attribute.name};
+    }}}}
+    /**
+     * @param {attribute.typeName} ${attribute.name}
+     */
+    public function set{capitalized}(${attribute.name}) {{{{
+        $this->{attribute.name} = ${attribute.name};
+    }}}}
+    """.format(attribute=n, capitalized=n.name[0].upper()+n.name[1:]) for n in meta.classDef.attributes ])
         
         out += """
 }}
