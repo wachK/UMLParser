@@ -4,6 +4,8 @@ Created on 08-08-2013
 @author: karol
 '''
 
+from os import makedirs
+
 class ClassMeta(object):
     def __init__(self, classDef=None, discr=None):
         self.classDef = classDef
@@ -11,10 +13,9 @@ class ClassMeta(object):
 
 
 class EntityGenerator(object):
-    def __init__(self, path, namespace, ormNamespace, inheritance='SINGLE_TABLE'):
+    def __init__(self, path, namespace, inheritance='SINGLE_TABLE'):
         self._path = path
         self._namespace = namespace
-        self._ormNamespace = ormNamespace
         self._inheritance = inheritance
     
     @property
@@ -30,13 +31,6 @@ class EntityGenerator(object):
     @namespace.setter
     def namespace(self, v):
         self._namespace = v
-        
-    @property
-    def ormNamespace(self):
-        return self._ormNamespace
-    @ormNamespace.setter
-    def ormNamespace(self, v):
-        self._ormNamespace = v
         
     @property
     def inheritance(self):
@@ -58,6 +52,10 @@ class EntityGenerator(object):
                 baseName = base.classDef.parent
         
         for meta in metas.values():
+            try:
+                makedirs(self.path)
+            except:
+                pass
             fp = open(self.path + '/' + meta.classDef.name + '.php', 'w')
             fp.write(self.generateClass(meta))
             fp.close()
@@ -68,19 +66,17 @@ class EntityGenerator(object):
 
 namespace {conf.namespace};
 
-use {conf.ormNamespace} as ORM;
-
 /**
  * {meta.classDef.name}
  * 
- * @ORM\Entity"""
+ * @Entity"""
  
         if len(meta.discr):
             out +=  """
- * @ORM\InheritanceType("{conf.inheritance}")
- * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({{"""
-            out += ', '.join([ '"{n}" = "{n}"'.format(n=n) for n in meta.discr ])
+ * @InheritanceType("{conf.inheritance}")
+ * @DiscriminatorColumn(name="discr", type="string")
+ * @DiscriminatorMap({{"""
+            out += ', '.join([ '"{n}" = "{n}"'.format(n=n) for n in [meta.classDef.name]+meta.discr ])
             out += '}})'
         
         out += """
@@ -97,9 +93,9 @@ class {meta.classDef.name}"""
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @Column(name="id", type="integer")
+     * @Id
+     * @GeneratedValue(strategy="AUTO")
      */
     private $id;"""
         
@@ -107,7 +103,7 @@ class {meta.classDef.name}"""
     /**
      * @var {attribute.typeName}
      *
-     * @ORM\Column(name="{attribute.name}", type="{attribute.typeName}")
+     * @Column(name="{attribute.name}", type="{attribute.typeName}")
      */
     private ${attribute.name};""".format(attribute=n) for n in meta.classDef.attributes ])
         

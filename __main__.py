@@ -14,7 +14,6 @@ if __name__ == '__main__':
     argsp.add_argument('-i', '--input', dest='fileName', required=True)
     argsp.add_argument('-d', '--dest', dest='path', required=True)
     argsp.add_argument('-ns', '--namespace', dest='namespace', required=True)
-    argsp.add_argument('-ons', '--ormnamespace', dest='ormNamespace', required=True)
     argsp.add_argument('-it', '--inheritancetype', dest='inheritance', default='SINGLE_TABLE')
     args = vars(argsp.parse_args(sys.argv[1:]))
 
