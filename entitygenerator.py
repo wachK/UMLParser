@@ -89,16 +89,12 @@ class {meta.classDef.name}"""
         if not meta.classDef.parent:
             out += """
     /**
-     * @var integer
-     *
      * @Column(name="id", type="integer")
      * @Id
      * @GeneratedValue(strategy="AUTO")
      */
     private $id;
-    /**
-     * @return integer
-     */
+
     public function getId() {{
         return $this->id;
     }}
@@ -106,24 +102,18 @@ class {meta.classDef.name}"""
         
         out += ''.join([ """
     /**
-     * @var {attribute.typeName}
-     *
-     * @Column(name="{attribute.name}", type="{attribute.typeName}")
+     * @Column(name="{attribute.name}", type="{attribute.typeName}"{typeLength})
      */
     private ${attribute.name};
-    /**
-     * @return {attribute.typeName}
-     */
+
     public function get{capitalized}() {{{{
         return $this->{attribute.name};
     }}}}
-    /**
-     * @param {attribute.typeName} ${attribute.name}
-     */
+
     public function set{capitalized}(${attribute.name}) {{{{
         $this->{attribute.name} = ${attribute.name};
     }}}}
-    """.format(attribute=n, capitalized=n.name[0].upper()+n.name[1:]) for n in meta.classDef.attributes ])
+    """.format(attribute=n, capitalized=n.name[0].upper()+n.name[1:], typeLength=', length='+n.typeLength if n.typeLength else '') for n in meta.classDef.attributes ])
         
         out += """
 }}

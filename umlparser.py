@@ -8,10 +8,11 @@ from xml.dom.minidom import parse
 from re import search
 
 class AttributeDef(object):
-    def __init__(self, access=None, name=None, typeName=None):
+    def __init__(self, access=None, name=None, typeName=None, typeLength=None):
         self.access = access
         self.name = name
         self.typeName = typeName
+        self.typeLength = typeLength
         
     def __str__(self):
         return 'Access: {}\nName: {}\nType: {}\n'.format(self.access, self.name, self.typeName)
@@ -57,9 +58,14 @@ class UMLParser(object):
                     for line in lines:
                         m = search('(?P<access>.)\s*(?P<name>.*?)(\s*\:\s*(?P<type>.*?))?$', line)
                         try:
-                            classNode.attributes.append(AttributeDef(m.group('access'), m.group('name'), m.group('type')))
+                            typeName = search('([^\s\(]+)', m.group('type')).group(1)
+                            try:
+                                typeLength = search('\((.*?)\)', m.group('type')).group(1)
+                            except:
+                                typeLength = None
+                            classNode.attributes.append(AttributeDef(m.group('access'), m.group('name'), typeName, typeLength))
                         except:
-                            pass
+                            print line
                 elif(prop == 'methods'):
                     lines = paramValue(param).split('\n')
                     for line in lines:
