@@ -8,11 +8,14 @@ from xml.dom.minidom import parse
 from re import search
 
 class AttributeDef(object):
-    def __init__(self, access=None, name=None, typeName=None, typeLength=None):
+    def __init__(self, access=None, name=None, typeName=None, typeLength=None, assoc=None, mappedBy=None, inversedBy=None):
         self.access = access
         self.name = name
         self.typeName = typeName
         self.typeLength = typeLength
+        self.assoc = assoc;
+        self.mappedBy = mappedBy
+        self.inversedBy = inversedBy
         
     def __str__(self):
         return 'Access: {}\nName: {}\nType: {}\n'.format(self.access, self.name, self.typeName)
@@ -56,14 +59,20 @@ class UMLParser(object):
                 elif(prop == 'attributes'):
                     lines = paramValue(param).split('\n')
                     for line in lines:
-                        m = search('(?P<access>.)\s*(?P<name>.*?)(\s*\:\s*(?P<type>.*?))?$', line)
+                        m = search('(?P<access>.)\s*(?P<name>.*?)\s*\:\s*(?P<type>.*?)(&gt;(?P<mappedBy>.*?))?(&lt;(?P<inversedBy>.*?))?$', line)
                         try:
                             typeName = search('([^\s\(]+)', m.group('type')).group(1)
                             try:
                                 typeLength = search('\((.*?)\)', m.group('type')).group(1)
                             except:
                                 typeLength = None
-                            classNode.attributes.append(AttributeDef(m.group('access'), m.group('name'), typeName, typeLength))
+                            assoc = None
+                            if typeName[0] == '[':
+                                assoc = typeName[1:3]
+                                typeName = typeName[4:]
+                            mappedBy = m.group('mappedBy')
+                            inversedBy = m.group('inversedBy')
+                            classNode.attributes.append(AttributeDef(m.group('access'), m.group('name'), typeName, typeLength, assoc, mappedBy, inversedBy))
                         except:
                             print line
                 elif(prop == 'methods'):
