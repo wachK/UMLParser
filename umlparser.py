@@ -8,11 +8,12 @@ from xml.dom.minidom import parse
 from re import search
 
 class AttributeDef(object):
-    def __init__(self, access=None, name=None, typeName=None, typeLength=None, assoc=None, mappedBy=None, inversedBy=None):
+    def __init__(self, access=None, name=None, typeName=None, typeLength=None, nullable=None, assoc=None, mappedBy=None, inversedBy=None):
         self.access = access
         self.name = name
         self.typeName = typeName
         self.typeLength = typeLength
+        self.nullable = nullable;
         self.assoc = assoc;
         self.mappedBy = mappedBy
         self.inversedBy = inversedBy
@@ -66,13 +67,16 @@ class UMLParser(object):
                                 typeLength = search('\((.*?)\)', m.group('type')).group(1)
                             except:
                                 typeLength = None
+                            nullable = typeName[0] == '?' or not typeName[0] == '!' and None;
+                            if not nullable is None:
+                                typeName = typeName[1:]
                             assoc = None
                             if typeName[0] == '[':
                                 assoc = typeName[1:3]
                                 typeName = typeName[4:]
                             mappedBy = m.group('mappedBy')
                             inversedBy = m.group('inversedBy')
-                            classNode.attributes.append(AttributeDef(m.group('access'), m.group('name'), typeName, typeLength, assoc, mappedBy, inversedBy))
+                            classNode.attributes.append(AttributeDef(m.group('access'), m.group('name'), typeName, typeLength, nullable, assoc, mappedBy, inversedBy))
                         except:
                             print line
                 elif(prop == 'methods'):

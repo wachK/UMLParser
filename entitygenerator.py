@@ -92,17 +92,23 @@ class EntityGenerator(object):
         return $this->id;
     }} """ if not meta.classDef.parent else ""
     
+    def _genAttrJoinColumn(self, metas, meta, n):
+        return """
+     * @JoinColumn(nullable={nullable})""".format(nullable=n.nullable) if not n.nullable is None else ''
+    
     def _genAttrDoc(self, metas, meta, n):
         if n.assoc is None:
             return """/**
-     * @Column(name="{name}", type="{typeName}"{typeLength})
-     */""".format(name=n.name, typeName=n.typeName, typeLength=', length='+n.typeLength if n.typeLength else '')
+     * @Column(name="{name}", type="{typeName}"{typeLength}{nullable})
+     */""".format(name=n.name, typeName=n.typeName, typeLength=', length='+n.typeLength if n.typeLength else '',
+                  nullable=', nullable='+str(n.nullable) if not n.nullable is None else '')
         else:
             mappings = {'11': 'OneToOne', '1*': 'OneToMany', '*1': 'ManyToOne', '**': 'ManyToMany'}
             return """/**
-     * @{mapping}(targetEntity="{target}"{mappedBy}{inversedBy})
+     * @{mapping}(targetEntity="{target}"{mappedBy}{inversedBy}){column}
      */""".format(mapping=mappings[n.assoc], target=n.typeName, mappedBy=", mappedBy=\"{field}\"".format(field=n.mappedBy) if n.mappedBy else "",
-                  inversedBy=", inversedBy=\"{field}\"".format(field=n.inversedBy) if n.inversedBy else "")
+                  inversedBy=", inversedBy=\"{field}\"".format(field=n.inversedBy) if n.inversedBy else "",
+                  column=self._genAttrJoinColumn(metas, meta, n))
     
     def _genAttrDec(self, metas, meta, n):
         return "private ${name};".format(name=n.name)
