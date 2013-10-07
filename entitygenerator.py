@@ -74,7 +74,7 @@ class EntityGenerator(object):
  * @Entity{discr}""".format(discr="""
  * @InheritanceType("{inheritance}")
  * @DiscriminatorColumn(name="discr", type="string")
- * @DiscriminatorMap({map})""".format(inheritance=self.inheritance, map=self._genDiscrMap(metas, meta)) if len(meta.discr) else "") + """
+ * @DiscriminatorMap({{{map}}})""".format(inheritance=self.inheritance, map=self._genDiscrMap(metas, meta)) if len(meta.discr) else "") + """
  */"""
     
     def _genClassName(self, metas, meta):
